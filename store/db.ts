@@ -36,7 +36,14 @@ async function updateItem(id: number, title: string, date: Date, priority: 'low'
 }
 
 async function getItems(): Promise<Task[]> {
-    return await db.getAllAsync<Task>('SELECT * FROM tasks');
+    const items = await db.getAllAsync<Task>('SELECT * FROM tasks');
+    return items.map(task => ({
+        id: task.id,
+        title: task.title,
+        date: task.date,
+        priority: task.priority,
+        status: task.status
+    }));
 }
 
 export { init, addItem, deleteItem, getItems, updateItem }

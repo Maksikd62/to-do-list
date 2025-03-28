@@ -8,13 +8,11 @@ import { init, getItems } from '../../store/db';
 import { useSQLiteContext } from 'expo-sqlite';
 
 import * as schema from '../../store/schema';
-import { useDispatch } from 'react-redux';
 
 import { Task } from '../../models/tasks';
 
 const List = () => {
     const db = drizzle(useSQLiteContext(), { schema });
-    const dispatch = useDispatch();
 
     const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -39,11 +37,6 @@ const List = () => {
             console.error('Error loading items:', error);
         }
     };
-
-    const clearHandle = async () => {
-        await db.delete(tasksTable);
-        loadItems();
-    }
 
     return (
         <View style={styles.container}>
