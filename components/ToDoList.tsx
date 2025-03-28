@@ -1,22 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { Task } from '../models/tasks';
 
 const initialTasks: Task[] = [
-  { id: 1, title: 'Meet Lorence', date: new Date('2018-03-04T12:00:00'), priority: 'mid', status: 'in progress' },
-  { id: 2, title: 'Meet Lorence', date: new Date('2018-03-04T13:00:00'), priority: 'low', status: 'in progress' },
-  { id: 3, title: 'Meet Lorence', date: new Date('2018-03-04T15:00:00'), priority: 'high', status: 'in progress' },
-  { id: 4, title: 'Meet Lorence', date: new Date('2018-03-04T16:00:00'), priority: 'mid', status: 'in progress' },
-  { id: 5, title: 'Meet Lorence', date: new Date('2018-03-04T17:00:00'), priority: 'low', status: 'in progress' },
+  { id: 1, title: 'Meet Lorence', date: new Date('2025-03-28T12:00:00'), priority: 'mid', status: 'in progress' }, 
+  { id: 2, title: 'Call John', date: new Date('2025-03-28T18:30:00'), priority: 'low', status: 'in progress' },
+  { id: 3, title: 'Submit report', date: new Date('2025-04-04T10:00:00'), priority: 'high', status: 'in progress' },
+  { id: 4, title: 'Team meeting', date: new Date('2025-04-15T09:00:00'), priority: 'mid', status: 'in progress' },
+  { id: 5, title: 'Doctor appointment', date: new Date('2025-05-01T11:00:00'), priority: 'low', status: 'in progress' },
 ];
 
-interface ToDoListProps {
-  setShowCreateTaskForm: React.Dispatch<React.SetStateAction<boolean>>;
-}
+export default function ToDoList() {
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const today = new Date();
 
-export default function ToDoList({ setShowCreateTaskForm }: ToDoListProps) {
-  const [tasks, setTasks] = useState(initialTasks);
+  useEffect(() => {
+    const updatedTasks = tasks.map(task => {
+      if (task.date < today && task.status !== 'completed') {
+        return { ...task, status: 'completed' as 'completed' };
+      }
+      return task;
+    });
+    setTasks(updatedTasks);
+  }, []);
 
   const toggleTask = (id: number) => {
     setTasks(tasks.map(task =>
@@ -24,29 +31,37 @@ export default function ToDoList({ setShowCreateTaskForm }: ToDoListProps) {
     ));
   };
 
+  const formatDate = (date: Date) => {
+    const taskDate = new Date(date);
+    const isToday = taskDate.toLocaleDateString() === today.toLocaleDateString();
+
+    if (isToday) {
+      return taskDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else {
+      return taskDate.toLocaleDateString('uk-UA', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      });
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.header}>To do List</Text>
-      <Text style={styles.date}>4th March 2025</Text>
+      <Text style={styles.date}>{today.toLocaleDateString()}</Text>
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.task} onPress={() => toggleTask(item.id)}>
             <Text style={[styles.taskText, item.status === 'completed' && styles.completed]}>
-              {item.status === 'completed' && <AntDesign name="checkcircle" size={16} color="green" />}
-              {item.title}
+              {item.status === 'completed' && <AntDesign name="checkcircle" size={16} color="green" />} {item.title}
             </Text>
-            <Text style={styles.time}>{item.date.toLocaleTimeString()}</Text>
+            <Text style={styles.time}>{formatDate(item.date)}</Text>
           </TouchableOpacity>
         )}
       />
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setShowCreateTaskForm(true)}
-      >
-        <AntDesign name="plus" size={24} color="#fff" />
-      </TouchableOpacity>
     </View>
   );
 };

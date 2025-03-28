@@ -1,4 +1,4 @@
-export type Task = {
+export interface Task {
     readonly id: number;
     title: string;
     date: Date;

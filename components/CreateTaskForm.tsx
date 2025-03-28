@@ -1,15 +1,13 @@
-import React from 'react';
-import { View, Text, TextInput, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { Controller, useForm } from 'react-hook-form';
+import { useRouter } from 'expo-router';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Task } from '../models/tasks';
 
-interface CreateTaskFormProps {
-  setShowCreateTaskForm: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export default function CreateTaskForm({ setShowCreateTaskForm }: CreateTaskFormProps) {
-  const { control, handleSubmit } = useForm<Omit<Task, 'id'>>({
+export default function CreateTaskForm() {
+  const { control, handleSubmit, setValue, watch, reset } = useForm<Omit<Task, 'id'>>({
     defaultValues: {
       title: '',
       date: new Date(),
@@ -18,9 +16,19 @@ export default function CreateTaskForm({ setShowCreateTaskForm }: CreateTaskForm
     },
   });
 
+  const router = useRouter();
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const selectedDate = watch('date');
+
   const onSubmit = (data: Omit<Task, 'id'>) => {
     console.log(data);
-    setShowCreateTaskForm(false);
+    reset();  
+    router.push('/list');
+  };
+
+  const onCancel = () => {
+    reset(); 
+    router.push('/list');
   };
 
   return (
@@ -49,11 +57,28 @@ export default function CreateTaskForm({ setShowCreateTaskForm }: CreateTaskForm
         )}
       />
 
+      <Text style={styles.label}>Due Date:</Text>
+      <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+        <Text style={styles.dateText}>{selectedDate.toDateString()}</Text>
+      </TouchableOpacity>
+
+      {showDatePicker && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'inline' : 'default'}
+          onChange={(_, date) => {
+            setShowDatePicker(false);
+            if (date) setValue('date', date);
+          }}
+        />
+      )}
+
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={[styles.button, styles.createButton]} onPress={handleSubmit(onSubmit)}>
           <Text style={styles.buttonText}>Create</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => setShowCreateTaskForm(false)}>
+        <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={onCancel}>
           <Text style={styles.buttonText}>Cancel</Text>
         </TouchableOpacity>
       </View>
@@ -95,6 +120,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ddd',
     marginBottom: 15,
+  },
+  dateButton: {
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#333',
   },
   buttonContainer: {
     flexDirection: 'row',
