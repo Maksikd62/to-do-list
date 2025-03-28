@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import { Task } from '../models/tasks';
 
-const db = SQLite.openDatabaseSync('tasks.db');
+export const db = SQLite.openDatabaseSync('tasks.db');
 
 async function init() {
     await db.execAsync(`
@@ -13,9 +13,12 @@ async function init() {
             priority TEXT CHECK(priority IN ('low', 'mid', 'high')) NOT NULL,
             status TEXT CHECK(status IN ('in progress', 'completed')) NOT NULL
         );
-        INSERT INTO tasks (title, date, priority, status) VALUES ('Task 1', '2025-03-28', 'low', 'in progress');
-        INSERT INTO tasks (title, date, priority, status) VALUES ('Task 2', '2025-03-29', 'mid', 'in progress');
-        INSERT INTO tasks (title, date, priority, status) VALUES ('Task 3', '2025-03-30', 'high', 'in progress');`);
+        INSERT INTO tasks (id, title, date, priority, status) VALUES (1, 'Meet Lorence', '2025-03-28T12:00:00', 'mid', 'in progress');
+        INSERT INTO tasks (id, title, date, priority, status) VALUES (2, 'Call John', '2025-03-28T18:30:00', 'low', 'in progress');
+        INSERT INTO tasks (id, title, date, priority, status) VALUES (3, 'Submit report', '2025-04-04T10:00:00', 'high', 'in progress');
+        INSERT INTO tasks (id, title, date, priority, status) VALUES (4, 'Team meeting', '2025-04-15T09:00:00', 'mid', 'in progress');
+        INSERT INTO tasks (id, title, date, priority, status) VALUES (5, 'Doctor appointment', '2025-05-01T11:00:00', 'low', 'in progress');
+    `);
 }
 
 async function addItem(title: string, date: Date, priority: 'low' | 'mid' | 'high', status: 'in progress' | 'completed') {

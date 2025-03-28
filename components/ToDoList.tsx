@@ -3,16 +3,12 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native
 import { AntDesign } from '@expo/vector-icons';
 import { Task } from '../models/tasks';
 
-const initialTasks: Task[] = [
-  { id: 1, title: 'Meet Lorence', date: new Date('2025-03-28T12:00:00'), priority: 'mid', status: 'in progress' }, 
-  { id: 2, title: 'Call John', date: new Date('2025-03-28T18:30:00'), priority: 'low', status: 'in progress' },
-  { id: 3, title: 'Submit report', date: new Date('2025-04-04T10:00:00'), priority: 'high', status: 'in progress' },
-  { id: 4, title: 'Team meeting', date: new Date('2025-04-15T09:00:00'), priority: 'mid', status: 'in progress' },
-  { id: 5, title: 'Doctor appointment', date: new Date('2025-05-01T11:00:00'), priority: 'low', status: 'in progress' },
-];
+interface ToDoListProps {
+  tasks: Task[];
+}
 
-export default function ToDoList() {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+export default function ToDoList({ tasks }: ToDoListProps) {
+  const [taskList, setTasks] = useState<Task[]>(tasks);
   const today = new Date();
 
   useEffect(() => {
@@ -23,10 +19,10 @@ export default function ToDoList() {
       return task;
     });
     setTasks(updatedTasks);
-  }, []);
+  }, [tasks]);
 
   const toggleTask = (id: number) => {
-    setTasks(tasks.map(task =>
+    setTasks(taskList.map(task =>
       task.id === id ? { ...task, status: task.status === 'in progress' ? 'completed' : 'in progress' } : task
     ));
   };
@@ -51,7 +47,7 @@ export default function ToDoList() {
       <Text style={styles.header}>To do List</Text>
       <Text style={styles.date}>{today.toLocaleDateString()}</Text>
       <FlatList
-        data={tasks}
+        data={taskList}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.task} onPress={() => toggleTask(item.id)}>

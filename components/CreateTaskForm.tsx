@@ -3,8 +3,9 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Platform } from 'r
 import { Picker } from '@react-native-picker/picker';
 import { Controller, useForm } from 'react-hook-form';
 import { useRouter } from 'expo-router';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker, {DateTimePickerEvent} from '@react-native-community/datetimepicker';
 import { Task } from '../models/tasks';
+import { addItem } from '../store/db';
 
 export default function CreateTaskForm() {
   const { control, handleSubmit, setValue, watch, reset } = useForm<Omit<Task, 'id'>>({
@@ -18,10 +19,12 @@ export default function CreateTaskForm() {
 
   const router = useRouter();
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const selectedDate = watch('date');
 
   const onSubmit = (data: Omit<Task, 'id'>) => {
     console.log(data);
+    addItem(data.title, data.date, data.priority, data.status);
     reset();  
     router.push('/list');
   };
@@ -29,6 +32,25 @@ export default function CreateTaskForm() {
   const onCancel = () => {
     reset(); 
     router.push('/list');
+  };
+
+  const handleDateChange = (event: DateTimePickerEvent, date: Date | undefined) => {
+    setShowDatePicker(false);
+    if (date) setValue('date', date);
+  };
+  
+  const handleTimeChange = (event: DateTimePickerEvent, date: Date | undefined) => {
+    setShowTimePicker(false);
+    if (date) {
+      const currentDate = selectedDate;
+      currentDate.setHours(date.getHours());
+      currentDate.setMinutes(date.getMinutes());
+      setValue('date', currentDate);
+    }
+  };
+
+  const handleShowTimePicker = () => {
+    setShowTimePicker(true);
   };
 
   return (
@@ -67,10 +89,21 @@ export default function CreateTaskForm() {
           value={selectedDate}
           mode="date"
           display={Platform.OS === 'ios' ? 'inline' : 'default'}
-          onChange={(_, date) => {
-            setShowDatePicker(false);
-            if (date) setValue('date', date);
-          }}
+          onChange={handleDateChange}
+        />
+      )}
+
+      <Text style={styles.label}>Set Time:</Text>
+      <TouchableOpacity style={styles.dateButton} onPress={handleShowTimePicker}>
+        <Text style={styles.dateText}>{selectedDate.toLocaleTimeString()}</Text>
+      </TouchableOpacity>
+
+      {showTimePicker && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="time"
+          display={Platform.OS === 'ios' ? 'inline' : 'default'}
+          onChange={handleTimeChange}
         />
       )}
 
