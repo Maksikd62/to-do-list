@@ -22,7 +22,8 @@
     "react-hook-form": "^7.54.2",
     "react-native": "0.76.7",
     "react-redux": "^9.2.0",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "expo-notifications": "~0.29.14"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

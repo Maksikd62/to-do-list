@@ -6,7 +6,8 @@ import { drizzle } from 'drizzle-orm/expo-sqlite';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 import migrations from '../drizzle/migrations';
 import { Provider } from 'react-redux';
-import {store} from './store';
+import { store } from './store';
+import { useNotifications,  useNotificationResponse} from './notifications';
 
 export const DATABASE_NAME = 'tasks';
 
@@ -14,6 +15,9 @@ export default function RootLayout() {
     const expoDb = openDatabaseSync(DATABASE_NAME);
     const db = drizzle(expoDb);
     const { success, error } = useMigrations(db, migrations);
+
+    useNotifications();
+    useNotificationResponse(); 
 
     if (error) {
         return (
